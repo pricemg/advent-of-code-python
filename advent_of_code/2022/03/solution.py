@@ -8,14 +8,15 @@ pytest test_solution.py
 """
 import logging
 import pathlib
+from string import ascii_letters
 
 from codetiming import Timer
 
-from string import ascii_letters
 
 logger = logging.getLogger(__name__)
 
 
+# Create mapping of lower + uppercase alphabet to number.
 PRIORITY_CODES = {char: i+1 for i, char in enumerate(ascii_letters)}
 
 def read_input(file: str) -> str:
@@ -23,13 +24,15 @@ def read_input(file: str) -> str:
     return pathlib.Path(file).read_text().strip()
 
 
-def parse_input(raw_input: str):
+def parse_input(raw_input: str) -> list[str]:
     """Parse input.
+    
+    Split raw input into entry for each line.
     """
     return raw_input.split('\n')
 
 
-def part1(puzzle_data):
+def part1(puzzle_data: list[str]) -> int:
     """Solve part 1."""
     # Split each string representing a rucksack in half.
     rucksacks = [
@@ -37,8 +40,11 @@ def part1(puzzle_data):
         for rucksack in puzzle_data
     ]
 
-    # Use sets to find the common item between rucksacks.
+    # Use sets to find the common item in each rucksack.
     common_items = [
+        # Can use `pop` on the set as rules state there will only ever be a
+        # single value in common between the two rucksacks (i.e. number of
+        # values in the set will be 1).
         (set(rucksack[0]) & set(rucksack[1])).pop()
         for rucksack in rucksacks
     ]
@@ -52,11 +58,15 @@ def part1(puzzle_data):
     return sum(common_items_priority)
 
 
-def part2(puzzle_data):
+def part2(puzzle_data: list[str]) -> int:
     """Solve part 2."""
-    # Use sets to find the common item between rucksacks.
+    # Use sets to find the common item between rucksacks in groups of three.
     common_items = [
+        # Can use `pop` on the set as rules state there will only ever be a
+        # single value in common between the three rucksacks (i.e. number of
+        # values in the set will be 1).
         (set(rucksacks[0]) & set(rucksacks[1]) & set(rucksacks[2])).pop()
+        # Use zip to group e.g. rucksacks 0,1,2; rucksacks 3,4,5... n-2,n-1,n.
         for rucksacks in zip(puzzle_data[0::3], puzzle_data[1::3], puzzle_data[2::3])
     ]
 
@@ -70,7 +80,7 @@ def part2(puzzle_data):
 
 
 @Timer(text='\nSolution found in {:0.8f} seconds.\n')
-def solve(file: str) -> tuple:
+def solve(file: str) -> tuple[int, int]:
     """Solve the puzzle for the given input."""
     raw_input = read_input(file)
 
